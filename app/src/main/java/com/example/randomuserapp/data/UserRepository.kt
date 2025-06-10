@@ -41,5 +41,20 @@ class UserRepository(private val db: AppDatabase) {
     suspend fun hasUsers(): Boolean {
         return db.userDao().countUsers() > 0
     }
+
+    suspend fun insert(user: User) = withContext(Dispatchers.IO) {
+        db.userDao().insert(user)
+    }
+
+    suspend fun insertIfNotExists(user: User): User? = withContext(Dispatchers.IO) {
+        val existing = db.userDao().getByIdentity(user.firstName, user.lastName, user.dob)
+        if (existing == null) {
+            db.userDao().insert(user)
+            // Finde ihn direkt danach (wegen autoGenerate id)
+            db.userDao().getByIdentity(user.firstName, user.lastName, user.dob)
+        } else {
+            existing
+        }
+    }
 }
 

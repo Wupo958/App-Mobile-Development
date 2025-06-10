@@ -12,8 +12,10 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,8 +27,11 @@ import com.example.randomuserapp.screens.SettingsScreen
 import com.example.randomuserapp.screens.UserDetailScreen
 import com.example.randomuserapp.screens.UserOverviewScreen
 import com.example.randomuserapp.ui.theme.RandomUserAppTheme
+import com.example.randomuserapp.ui.theme.ThemeViewModel
+import androidx.compose.runtime.getValue
 import kotlinx.coroutines.launch
 
+@androidx.camera.core.ExperimentalGetImage
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,15 +46,19 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            RandomUserAppTheme {
-                AppNavigation()
+            val themeViewModel: ThemeViewModel = viewModel()
+            val isDark by themeViewModel.isDark.collectAsState()
+
+            RandomUserAppTheme(useDarkTheme = isDark) {
+                AppNavigation(themeViewModel)
             }
         }
     }
 }
 
+@androidx.camera.core.ExperimentalGetImage
 @Composable
-fun AppNavigation() {
+fun AppNavigation(themeViewModel: ThemeViewModel) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -60,15 +69,13 @@ fun AppNavigation() {
             startDestination = "overview",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("overview") { UserOverviewScreen(navController) }
-            composable("camera") { CameraScreen() }
-            composable("settings") { SettingsScreen() }
-            composable("detail/{userId}") { backStackEntry ->
-                val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
-                if (userId != null) {
-                    UserDetailScreen(userId, navController)
-                } else {
-                    Text("Fehler: Keine ID übergeben")
+            composable("overview") { UserOverviewScreen(navController, themeViewModel) }
+            composable("camera") { CameraScreen(navController, themeViewModel) }
+            composable("settings") { SettingsScreen(themeViewModel) }
+            composable("detail/{id}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+                userId?.let {
+                    UserDetailScreen(userId, navController, themeViewModel)
                 }
             }
         }

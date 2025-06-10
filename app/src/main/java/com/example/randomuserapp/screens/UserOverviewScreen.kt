@@ -19,12 +19,12 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.randomuserapp.data.AppDatabase
 import com.example.randomuserapp.data.UserRepository
-import com.example.randomuserapp.user.User
+import com.example.randomuserapp.ui.theme.ThemeViewModel
 import com.example.randomuserapp.user.UserViewModel
 import com.example.randomuserapp.user.UserViewModelFactory
 
 @Composable
-fun UserOverviewScreen(navController: NavController) {
+fun UserOverviewScreen(navController: NavController, themeViewModel: ThemeViewModel) {
 
 
     val context = LocalContext.current

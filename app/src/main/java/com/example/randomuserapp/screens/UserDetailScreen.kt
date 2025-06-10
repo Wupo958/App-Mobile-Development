@@ -1,11 +1,13 @@
 package com.example.randomuserapp.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -22,11 +24,16 @@ import com.example.randomuserapp.user.User
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.randomuserapp.ui.theme.ThemeViewModel
+import com.example.randomuserapp.user.formatDate
+import com.example.randomuserapp.user.generateQrCodeBitmap
+import org.json.JSONObject
 
 @Composable
-fun UserDetailScreen(userId: Int, navController: NavController) {
+fun UserDetailScreen(userId: Int, navController: NavController, themeViewModel: ThemeViewModel) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
     val repository = remember { UserRepository(db) }
@@ -43,18 +50,41 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
             }
 
             Spacer(Modifier.height(32.dp))
+            Row(modifier = Modifier.padding(16.dp)){
+                AsyncImage(
+                    model = it.photoUrl,
+                    contentDescription = "User photo",
+                    modifier = Modifier
+                        .size(128.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                )
 
-            AsyncImage(
-                model = it.photoUrl,
-                contentDescription = "User photo",
-                modifier = Modifier
-                    .size(128.dp)
-                    .clip(RoundedCornerShape(10.dp))
-            )
+                Spacer(Modifier.width(32.dp))
+
+                val qrContent = JSONObject().apply {
+                    put("firstName", it.firstName)
+                    put("lastName", it.lastName)
+                    put("dob", it.dob)
+                    put("phone", it.phone)
+                    put("photoUrl", it.photoUrl)
+                }.toString()
+
+                val qrBitmap = remember(qrContent) {
+                    generateQrCodeBitmap(qrContent)
+                }
+
+                Image(
+                    bitmap = qrBitmap.asImageBitmap(),
+                    contentDescription = "QR Code",
+                    modifier = Modifier
+                        .size(128.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                )
+            }
             Spacer(Modifier.height(32.dp))
             Text("${it.firstName} ${it.lastName}", style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(16.dp))
-            Text("Date of birth: ${it.dob}")
+            Text("Date of birth: " + formatDate(it.dob))
             Spacer(Modifier.height(16.dp))
             Text("Phone: ${it.phone}")
         }
