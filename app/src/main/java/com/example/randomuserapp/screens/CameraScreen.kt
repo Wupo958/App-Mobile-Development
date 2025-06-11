@@ -23,6 +23,7 @@ import com.example.randomuserapp.data.AppDatabase
 import com.example.randomuserapp.data.UserRepository
 import com.example.randomuserapp.ui.theme.ThemeViewModel
 import com.example.randomuserapp.user.User
+import com.example.randomuserapp.user.formatDate
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.*
@@ -38,6 +39,15 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
 
     var barcodeBox by remember { mutableStateOf<Rect?>(null) }
     var userOverlay by remember { mutableStateOf<User?>(null) }
+    var lastDetectedTime by remember { mutableStateOf(System.currentTimeMillis()) }
+
+    LaunchedEffect(lastDetectedTime) {
+        delay(1000)
+        if (System.currentTimeMillis() - lastDetectedTime >= 1000) {
+            barcodeBox = null
+            userOverlay = null
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
@@ -46,23 +56,29 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
             barcodeBox?.let { box ->
                 Box(
                     modifier = Modifier
-                        .absoluteOffset(x = box.left.coerceAtLeast(0).dp, y = box.top.coerceAtLeast(0).dp)
-                        .width(box.width().dp)
-                        .graphicsLayer(
-                            rotationZ = -5f,
-                            shadowElevation = 8f,
-                            shape = MaterialTheme.shapes.medium,
-                            clip = true
+                        .absoluteOffset(
+                            x = box.left.coerceAtLeast(0).dp,
+                            y = box.top.coerceAtLeast(0).dp
                         )
-                        .background(Color(0xDD000000))
-                        .padding(8.dp)
+                        .width(box.width().dp)
+                        .height(box.height().dp)
+                        .background(Color(0xBB000000))
+                        .padding(4.dp)
                         .clickable {
                             navController.navigate("detail/${user.id}")
                         }
                 ) {
-                    Column {
-                        Text("${user.firstName} ${user.lastName}", color = Color.White, style = MaterialTheme.typography.bodyLarge)
-                        Text(user.phone, color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+                        Text(
+                            text = "${user.firstName} ${user.lastName}",
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = formatDate(user.dob),
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
             }
@@ -83,16 +99,12 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
                     val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
                     barcodeScanner.process(inputImage)
                         .addOnSuccessListener { barcodes ->
-                            if (barcodes.isEmpty()) {
-                                userOverlay = null
-                                barcodeBox = null
-                            }
+                            if (barcodes.isEmpty()) return@addOnSuccessListener
 
-                            for (barcode in barcodes) {
-                                val rawValue = barcode.rawValue ?: continue
-                                val box = barcode.boundingBox ?: continue
-
-                                barcodeBox = box
+                            val barcode = barcodes.firstOrNull { it.rawValue != null && it.boundingBox != null }
+                            barcode?.let {
+                                val rawValue = it.rawValue ?: return@let
+                                val box = it.boundingBox ?: return@let
 
                                 try {
                                     val json = JSONObject(rawValue)
@@ -111,25 +123,22 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
                                         val savedUser = repo.insertIfNotExists(user)
                                         savedUser?.let {
                                             withContext(Dispatchers.Main) {
+                                                barcodeBox = box
                                                 userOverlay = it
+                                                lastDetectedTime = System.currentTimeMillis()
                                             }
                                         }
                                     }
+
                                 } catch (e: Exception) {
                                     Log.e("Scanner", "QR Fehler: ${e.message}")
                                 }
-
-                                break
                             }
                         }
                         .addOnFailureListener {
                             Log.e("Scanner", "Scan fehlgeschlagen", it)
-                            userOverlay = null
-                            barcodeBox = null
                         }
-                        .addOnCompleteListener {
-                            imageProxy.close()
-                        }
+                        .addOnCompleteListener { imageProxy.close() }
                 } else {
                     imageProxy.close()
                 }
@@ -138,11 +147,6 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
 
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
         cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(
-            lifecycleOwner,
-            cameraSelector,
-            preview,
-            analyzer
-        )
+        cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, analyzer)
     }
 }
