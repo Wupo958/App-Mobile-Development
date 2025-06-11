@@ -39,7 +39,6 @@ fun UserEditScreen(userId: Int?, navController: NavController) {
         }
     }
 
-    // UI mit Textfeldern zum Bearbeiten
     Column(Modifier.padding(16.dp)) {
         OutlinedTextField(value = user.firstName, onValueChange = { user = user.copy(firstName = it) }, label = { Text("Name") })
         OutlinedTextField(value = user.lastName, onValueChange = { user = user.copy(lastName = it) }, label = { Text("Lastname") })

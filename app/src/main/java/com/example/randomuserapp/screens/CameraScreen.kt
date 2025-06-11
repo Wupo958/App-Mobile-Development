@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -21,7 +20,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.example.randomuserapp.data.AppDatabase
 import com.example.randomuserapp.data.UserRepository
-import com.example.randomuserapp.ui.theme.ThemeViewModel
 import com.example.randomuserapp.user.User
 import com.example.randomuserapp.user.formatDate
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -32,7 +30,7 @@ import java.util.concurrent.Executors
 
 @androidx.camera.core.ExperimentalGetImage
 @Composable
-fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
+fun CameraScreen(navController: NavController) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }

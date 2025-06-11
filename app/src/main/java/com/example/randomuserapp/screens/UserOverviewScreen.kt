@@ -24,7 +24,7 @@ import com.example.randomuserapp.user.UserViewModel
 import com.example.randomuserapp.user.UserViewModelFactory
 
 @Composable
-fun UserOverviewScreen(navController: NavController, themeViewModel: ThemeViewModel) {
+fun UserOverviewScreen(navController: NavController) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
     val viewModel: UserViewModel = viewModel(
@@ -46,7 +46,6 @@ fun UserOverviewScreen(navController: NavController, themeViewModel: ThemeViewMo
             Text("Create user")
         }
 
-        // List of users
         LazyColumn {
             items(users) { user ->
                 Card(

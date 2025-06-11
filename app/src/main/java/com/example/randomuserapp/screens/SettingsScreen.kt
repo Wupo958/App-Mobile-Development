@@ -84,14 +84,14 @@ fun SettingsScreen(themeViewModel: ThemeViewModel) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(onClick = { viewModel.addUsers() }) {
-                Text("Add 10 More Users")
+            Button(onClick = { viewModel.addUsers()}) {
+                Text("Add 10 Users")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = { viewModel.refreshUsers() }) {
-                Text("Refill Database with 10 Users")
+                Text("Refill Database(10 Users)")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
