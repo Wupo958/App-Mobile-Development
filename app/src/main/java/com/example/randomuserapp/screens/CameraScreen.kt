@@ -37,11 +37,11 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
 
     AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(previewView) {
         val cameraProvider = ProcessCameraProvider.getInstance(context).get()
-        val preview = Preview.Builder().build().also {
-            it.setSurfaceProvider(previewView.surfaceProvider)
-        }
+
+        val preview = Preview.Builder().build()
+        preview.setSurfaceProvider(previewView.surfaceProvider)
 
         val barcodeScanner = BarcodeScanning.getClient()
         val analyzer = ImageAnalysis.Builder().build().apply {

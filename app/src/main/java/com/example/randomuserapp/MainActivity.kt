@@ -30,11 +30,17 @@ import com.example.randomuserapp.ui.theme.RandomUserAppTheme
 import com.example.randomuserapp.ui.theme.ThemeViewModel
 import androidx.compose.runtime.getValue
 import kotlinx.coroutines.launch
+import android.Manifest
+import android.content.pm.PackageManager
 
 @androidx.camera.core.ExperimentalGetImage
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), 0)
+        }
 
         val db = AppDatabase.getDatabase(applicationContext)
         val repository = UserRepository(db)
