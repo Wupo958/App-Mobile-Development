@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -45,9 +46,15 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
             barcodeBox?.let { box ->
                 Box(
                     modifier = Modifier
-                        .absoluteOffset(x = box.left.dp, y = box.top.dp)
+                        .absoluteOffset(x = box.left.coerceAtLeast(0).dp, y = box.top.coerceAtLeast(0).dp)
                         .width(box.width().dp)
-                        .background(Color(0xAA000000))
+                        .graphicsLayer(
+                            rotationZ = -5f,
+                            shadowElevation = 8f,
+                            shape = MaterialTheme.shapes.medium,
+                            clip = true
+                        )
+                        .background(Color(0xDD000000))
                         .padding(8.dp)
                         .clickable {
                             navController.navigate("detail/${user.id}")
@@ -76,10 +83,17 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
                     val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
                     barcodeScanner.process(inputImage)
                         .addOnSuccessListener { barcodes ->
-                            for (barcode in barcodes) {
-                                barcode.boundingBox?.let { box -> barcodeBox = box }
+                            if (barcodes.isEmpty()) {
+                                userOverlay = null
+                                barcodeBox = null
+                            }
 
-                                val rawValue = barcode.rawValue ?: return@addOnSuccessListener
+                            for (barcode in barcodes) {
+                                val rawValue = barcode.rawValue ?: continue
+                                val box = barcode.boundingBox ?: continue
+
+                                barcodeBox = box
+
                                 try {
                                     val json = JSONObject(rawValue)
                                     val user = User(
@@ -101,14 +115,21 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
                                             }
                                         }
                                     }
-
                                 } catch (e: Exception) {
-                                    Log.e("Scanner", "QR-Fehler: ${e.message}")
+                                    Log.e("Scanner", "QR Fehler: ${e.message}")
                                 }
+
+                                break
                             }
                         }
-                        .addOnFailureListener { Log.e("Scanner", "Scan fehlgeschlagen", it) }
-                        .addOnCompleteListener { imageProxy.close() }
+                        .addOnFailureListener {
+                            Log.e("Scanner", "Scan fehlgeschlagen", it)
+                            userOverlay = null
+                            barcodeBox = null
+                        }
+                        .addOnCompleteListener {
+                            imageProxy.close()
+                        }
                 } else {
                     imageProxy.close()
                 }
