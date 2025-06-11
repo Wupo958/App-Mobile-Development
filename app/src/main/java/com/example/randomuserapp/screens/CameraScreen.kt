@@ -1,5 +1,6 @@
 package com.example.randomuserapp.screens
 
+import android.R.attr.rotation
 import android.graphics.Rect
 import android.util.Log
 import androidx.camera.core.*
@@ -8,10 +9,13 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -54,21 +58,30 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
 
         userOverlay?.let { user ->
             barcodeBox?.let { box ->
+                val overlayWidth = 200.dp
+                val overlayHeight = 100.dp
+
+                val offsetX = (box.centerX() - 100).coerceAtLeast(0).dp
+                val offsetY = (box.top - 110).coerceAtLeast(0).dp
+
                 Box(
                     modifier = Modifier
-                        .absoluteOffset(
-                            x = box.left.coerceAtLeast(0).dp,
-                            y = box.top.coerceAtLeast(0).dp
-                        )
+                        .absoluteOffset(x = box.left.dp, y = box.top.dp)
                         .width(box.width().dp)
-                        .height(box.height().dp)
-                        .background(Color(0xBB000000))
-                        .padding(4.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xAA000000))
+                        .graphicsLayer {
+                            rotationZ = -rotation.toFloat()
+                        }
+                        .padding(8.dp)
                         .clickable {
                             navController.navigate("detail/${user.id}")
                         }
                 ) {
-                    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center
+                    ) {
                         Text(
                             text = "${user.firstName} ${user.lastName}",
                             color = Color.White,
