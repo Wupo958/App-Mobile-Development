@@ -41,11 +41,14 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
     var userOverlay by remember { mutableStateOf<User?>(null) }
     var lastDetectedTime by remember { mutableStateOf(System.currentTimeMillis()) }
 
-    LaunchedEffect(lastDetectedTime) {
-        delay(1000)
-        if (System.currentTimeMillis() - lastDetectedTime >= 1000) {
-            barcodeBox = null
-            userOverlay = null
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(200)
+            val now = System.currentTimeMillis()
+            if (now - lastDetectedTime > 1000) {
+                barcodeBox = null
+                userOverlay = null
+            }
         }
     }
 
