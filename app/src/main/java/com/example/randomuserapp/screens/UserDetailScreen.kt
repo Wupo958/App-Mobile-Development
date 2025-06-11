@@ -24,20 +24,18 @@ import com.example.randomuserapp.data.AppDatabase
 import com.example.randomuserapp.data.UserRepository
 import com.example.randomuserapp.user.User
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.randomuserapp.ui.theme.ThemeViewModel
 import com.example.randomuserapp.user.formatDate
 import com.example.randomuserapp.user.generateQrCodeBitmap
 import org.json.JSONObject
 
 @Composable
-fun UserDetailScreen(userId: Int, navController: NavController, themeViewModel: ThemeViewModel) {
+fun UserDetailScreen(userId: Int, navController: NavController) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
     val repository = remember { UserRepository(db) }
@@ -52,9 +50,21 @@ fun UserDetailScreen(userId: Int, navController: NavController, themeViewModel: 
 
     user?.let {
         Column(modifier = Modifier.padding(16.dp)) {
-            Button(onClick = { navController.navigate("overview") }) {
-                Text("Return")
+            Row{
+                Button(onClick = { navController.navigate("overview") }) {
+                    Text("Return")
+                }
+
+                Spacer(Modifier.width(32.dp))
+
+                Button(
+                    onClick = { navController.navigate("edit/${user!!.id}") },
+                    modifier = Modifier
+                ) {
+                    Text("Edit")
+                }
             }
+
 
             Spacer(Modifier.height(32.dp))
 
@@ -103,7 +113,7 @@ fun UserDetailScreen(userId: Int, navController: NavController, themeViewModel: 
                     }
                 }
             } else {
-                Column() {
+                Column {
 
                     Row {
                         AsyncImage(

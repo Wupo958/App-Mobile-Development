@@ -32,6 +32,10 @@ import androidx.compose.runtime.getValue
 import kotlinx.coroutines.launch
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.randomuserapp.screens.UserEditScreen
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 
 @androidx.camera.core.ExperimentalGetImage
 class MainActivity : ComponentActivity() {
@@ -75,13 +79,22 @@ fun AppNavigation(themeViewModel: ThemeViewModel) {
             startDestination = "overview",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("overview") { UserOverviewScreen(navController, themeViewModel) }
-            composable("camera") { CameraScreen(navController, themeViewModel) }
+            composable("overview") { UserOverviewScreen(navController) }
+            composable("camera") { CameraScreen(navController) }
             composable("settings") { SettingsScreen(themeViewModel) }
             composable("detail/{id}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("id")?.toIntOrNull()
                 userId?.let {
-                    UserDetailScreen(userId, navController, themeViewModel)
+                    UserDetailScreen(userId, navController)
+                }
+            }
+            composable("create") {
+                UserEditScreen(null, navController)
+            }
+            composable("edit/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+                id?.let {
+                    UserEditScreen(it, navController)
                 }
             }
         }
@@ -92,14 +105,14 @@ fun AppNavigation(themeViewModel: ThemeViewModel) {
 fun BottomNavigationBar(navController: NavHostController) {
     NavigationBar {
         val items = listOf(
-            NavItem("Overview", "overview"),
-            NavItem("Camera", "camera"),
-            NavItem("Settings", "settings"),
+            NavItem("Overview", "overview", Icons.Default.Home),
+            NavItem("Camera", "camera", Icons.Default.Add),
+            NavItem("Settings", "settings", Icons.Default.Settings),
         )
 
         items.forEach { item ->
             NavigationBarItem(
-                icon = {Icon(Icons.Default.Home, contentDescription = null)},
+                icon = { Icon(item.icon, contentDescription = item.title) },
                 label = { Text(item.title) },
                 selected = navController.currentDestination?.route == item.route,
                 onClick = { navController.navigate(item.route) }
@@ -108,5 +121,5 @@ fun BottomNavigationBar(navController: NavHostController) {
     }
 }
 
-data class NavItem(val title: String, val route: String)
+data class NavItem(val title: String, val route: String, val icon: ImageVector)
 
