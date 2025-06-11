@@ -52,9 +52,21 @@ fun UserDetailScreen(userId: Int, navController: NavController, themeViewModel: 
 
     user?.let {
         Column(modifier = Modifier.padding(16.dp)) {
-            Button(onClick = { navController.navigate("overview") }) {
-                Text("Return")
+            Row{
+                Button(onClick = { navController.navigate("overview") }) {
+                    Text("Return")
+                }
+
+                Spacer(Modifier.width(32.dp))
+
+                Button(
+                    onClick = { navController.navigate("edit/${user!!.id}") },
+                    modifier = Modifier
+                ) {
+                    Text("Edit")
+                }
             }
+
 
             Spacer(Modifier.height(32.dp))
 

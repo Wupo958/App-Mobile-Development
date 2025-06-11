@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import kotlinx.coroutines.launch
 import android.Manifest
 import android.content.pm.PackageManager
+import com.example.randomuserapp.screens.UserEditScreen
 
 @androidx.camera.core.ExperimentalGetImage
 class MainActivity : ComponentActivity() {
@@ -82,6 +83,15 @@ fun AppNavigation(themeViewModel: ThemeViewModel) {
                 val userId = backStackEntry.arguments?.getString("id")?.toIntOrNull()
                 userId?.let {
                     UserDetailScreen(userId, navController, themeViewModel)
+                }
+            }
+            composable("create") {
+                UserEditScreen(null, navController)
+            }
+            composable("edit/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+                id?.let {
+                    UserEditScreen(it, navController)
                 }
             }
         }

@@ -25,8 +25,6 @@ import com.example.randomuserapp.user.UserViewModelFactory
 
 @Composable
 fun UserOverviewScreen(navController: NavController, themeViewModel: ThemeViewModel) {
-
-
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
     val viewModel: UserViewModel = viewModel(
@@ -34,50 +32,60 @@ fun UserOverviewScreen(navController: NavController, themeViewModel: ThemeViewMo
     )
     val users by viewModel.users.observeAsState(emptyList())
 
-    LazyColumn(
-
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        Button(
+            onClick = { navController.navigate("create") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            Text("Create user")
+        }
 
-        items(users) { user ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .clickable {
-                        navController.navigate("detail/${user.id}")
-                    },
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+        // List of users
+        LazyColumn {
+            items(users) { user ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .clickable {
+                            navController.navigate("detail/${user.id}")
+                        },
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
                 ) {
-                    AsyncImage(
-                        model = user.photoUrl,
-                        contentDescription = "User image",
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(CircleShape)
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column {
-                        Text(
-                            text = "${user.firstName} ${user.lastName}",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AsyncImage(
+                            model = user.photoUrl,
+                            contentDescription = "User image",
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
                         )
-                        Text(
-                            text = user.phone,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text(
+                                text = "${user.firstName} ${user.lastName}",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = user.phone,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }

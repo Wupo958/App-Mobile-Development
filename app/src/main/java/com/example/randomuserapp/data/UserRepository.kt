@@ -56,5 +56,9 @@ class UserRepository(private val db: AppDatabase) {
             existing
         }
     }
+
+    suspend fun updateUser(user: User) {
+        db.userDao().update(user)
+    }
 }
 
