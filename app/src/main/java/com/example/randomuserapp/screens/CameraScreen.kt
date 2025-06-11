@@ -1,17 +1,20 @@
 package com.example.randomuserapp.screens
 
+import android.graphics.Rect
 import android.util.Log
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
@@ -21,10 +24,7 @@ import com.example.randomuserapp.ui.theme.ThemeViewModel
 import com.example.randomuserapp.user.User
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.json.JSONObject
 import java.util.concurrent.Executors
 
@@ -35,13 +35,38 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }
 
-    AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
+    var barcodeBox by remember { mutableStateOf<Rect?>(null) }
+    var userOverlay by remember { mutableStateOf<User?>(null) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
+
+        userOverlay?.let { user ->
+            barcodeBox?.let { box ->
+                Box(
+                    modifier = Modifier
+                        .absoluteOffset(x = box.left.dp, y = box.top.dp)
+                        .width(box.width().dp)
+                        .background(Color(0xAA000000))
+                        .padding(8.dp)
+                        .clickable {
+                            navController.navigate("detail/${user.id}")
+                        }
+                ) {
+                    Column {
+                        Text("${user.firstName} ${user.lastName}", color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                        Text(user.phone, color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(previewView) {
         val cameraProvider = ProcessCameraProvider.getInstance(context).get()
-
-        val preview = Preview.Builder().build()
-        preview.setSurfaceProvider(previewView.surfaceProvider)
+        val preview = Preview.Builder().build().also {
+            it.setSurfaceProvider(previewView.surfaceProvider)
+        }
 
         val barcodeScanner = BarcodeScanning.getClient()
         val analyzer = ImageAnalysis.Builder().build().apply {
@@ -52,6 +77,8 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
                     barcodeScanner.process(inputImage)
                         .addOnSuccessListener { barcodes ->
                             for (barcode in barcodes) {
+                                barcode.boundingBox?.let { box -> barcodeBox = box }
+
                                 val rawValue = barcode.rawValue ?: return@addOnSuccessListener
                                 try {
                                     val json = JSONObject(rawValue)
@@ -70,7 +97,7 @@ fun CameraScreen(navController: NavController, themeViewModel: ThemeViewModel) {
                                         val savedUser = repo.insertIfNotExists(user)
                                         savedUser?.let {
                                             withContext(Dispatchers.Main) {
-                                                navController.navigate("detail/${it.id}")
+                                                userOverlay = it
                                             }
                                         }
                                     }
