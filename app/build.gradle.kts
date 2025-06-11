@@ -47,6 +47,7 @@ dependencies {
 
     //Room
     implementation("androidx.room:room-runtime:2.7.1")
+    //implementation(libs.androidx.ui.test.junit4.android)
     kapt("androidx.room:room-compiler:2.7.1")
     implementation("androidx.room:room-ktx:2.7.1")
 
@@ -69,6 +70,18 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.0")
     implementation("androidx.camera:camera-view:1.3.0")
     implementation("androidx.camera:camera-core:1.3.0")
+
+    //Testing
+        //ViewModel
+        testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+        testImplementation("junit:junit:4.13.2")
+        testImplementation("io.mockk:mockk:1.13.10")
+        testImplementation("androidx.arch.core:core-testing:2.2.0")
+        //UI
+        androidTestImplementation("androidx.test.ext:junit:1.1.5")
+        androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+        androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.8.2")
+        debugImplementation("androidx.compose.ui:ui-test-manifest:1.8.2")
 
 
     implementation(libs.androidx.core.ktx)
