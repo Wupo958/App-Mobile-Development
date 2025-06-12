@@ -76,7 +76,7 @@ fun CameraScreen(navController: NavController) {
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Text(
-                            text = user.dob,
+                            text = formatDate(user.dob),
                             color = Color.White,
                             style = MaterialTheme.typography.bodyMedium
                         )

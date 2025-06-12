@@ -21,7 +21,7 @@ class UserRepository(private val db: AppDatabase) {
                 val user = User(
                     firstName = it.name.first,
                     lastName = it.name.last,
-                    dob = formatDate(it.dob.date),
+                    dob = it.dob.date,
                     phone = it.phone,
                     photoUrl = it.picture.large
                 )

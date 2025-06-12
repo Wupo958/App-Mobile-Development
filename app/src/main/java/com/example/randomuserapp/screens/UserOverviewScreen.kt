@@ -91,7 +91,7 @@ fun UserOverviewScreen(navController: NavController) {
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = user.dob,
+                                text = formatDate(user.dob),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

@@ -100,7 +100,7 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text("${it.firstName} ${it.lastName}", style = MaterialTheme.typography.titleLarge)
                         Spacer(Modifier.height(16.dp))
-                        Text("Date of birth: " + it.dob)
+                        Text("Date of birth: " + formatDate(it.dob))
                         Spacer(Modifier.height(16.dp))
                         Text("Phone: ${it.phone}")
                     }
@@ -137,7 +137,7 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
                     Spacer(Modifier.height(32.dp))
                     Text("${it.firstName} ${it.lastName}", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(16.dp))
-                    Text("Date of birth: " + it.dob)
+                    Text("Date of birth: " + formatDate(it.dob))
                     Spacer(Modifier.height(16.dp))
                     Text("Phone: ${it.phone}")
                 }
