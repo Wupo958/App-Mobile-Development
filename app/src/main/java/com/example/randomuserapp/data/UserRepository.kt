@@ -2,6 +2,7 @@ package com.example.randomuserapp.data
 
 import androidx.lifecycle.LiveData
 import com.example.randomuserapp.user.User
+import com.example.randomuserapp.user.formatDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

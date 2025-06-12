@@ -108,13 +108,15 @@ fun CameraScreen(navController: NavController) {
                                 val box = it.boundingBox ?: return@let
 
                                 try {
+                                    val baseUrl = "https://randomuser.me/api/portraits/"
+
                                     val json = JSONObject(rawValue)
                                     val user = User(
                                         firstName = json.getString("firstName"),
                                         lastName = json.getString("lastName"),
                                         dob = json.getString("dob"),
                                         phone = json.getString("phone"),
-                                        photoUrl = json.getString("photoUrl")
+                                        photoUrl = baseUrl + json.getString("photoUrl")
                                     )
 
                                     val db = AppDatabase.getDatabase(context)

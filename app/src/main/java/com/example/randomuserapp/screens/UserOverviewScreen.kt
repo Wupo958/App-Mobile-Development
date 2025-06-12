@@ -1,5 +1,6 @@
 package com.example.randomuserapp.screens
 
+import android.icu.text.DateFormat
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,11 +21,14 @@ import coil.compose.AsyncImage
 import com.example.randomuserapp.data.AppDatabase
 import com.example.randomuserapp.data.UserRepository
 import com.example.randomuserapp.ui.theme.ThemeViewModel
+import com.example.randomuserapp.user.SortOption
 import com.example.randomuserapp.user.UserViewModel
 import com.example.randomuserapp.user.UserViewModelFactory
+import com.example.randomuserapp.user.formatDate
 
 @Composable
 fun UserOverviewScreen(navController: NavController) {
+
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
     val viewModel: UserViewModel = viewModel(
@@ -32,18 +36,25 @@ fun UserOverviewScreen(navController: NavController) {
     )
     val users by viewModel.users.observeAsState(emptyList())
 
+    LaunchedEffect(Unit) {
+        viewModel.loadSortOption(context)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Button(
-            onClick = { navController.navigate("create") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            Text("Create user")
+        Row{
+            Button(
+                onClick = { navController.navigate("create") },
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+            ) {
+                Text("Create user")
+            }
+
+            SortDropdown(viewModel)
         }
 
         LazyColumn {
@@ -80,13 +91,41 @@ fun UserOverviewScreen(navController: NavController) {
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = user.phone,
+                                text = formatDate(user.dob),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun SortDropdown(viewModel: UserViewModel) {
+    val context = LocalContext.current
+    val currentOption by viewModel.sortOption.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Button(
+            onClick = { expanded = true },
+            modifier = Modifier.padding(start = 8.dp)
+        ) {
+            Text("Sort by: ${currentOption.displayName}")
+        }
+
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            SortOption.values().forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.displayName) },
+                    onClick = {
+                        viewModel.setSortOption(option, context)
+                        expanded = false
+                    }
+                )
             }
         }
     }

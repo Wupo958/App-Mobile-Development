@@ -64,11 +64,26 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics:1.8.2")
 
     // QR Code scannen
-    implementation("com.google.mlkit:barcode-scanning:17.2.0")
-    implementation("androidx.camera:camera-camera2:1.3.0")
-    implementation("androidx.camera:camera-lifecycle:1.3.0")
-    implementation("androidx.camera:camera-view:1.3.0")
-    implementation("androidx.camera:camera-core:1.3.0")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("androidx.camera:camera-camera2:1.4.2")
+    implementation("androidx.camera:camera-lifecycle:1.4.2")
+    implementation("androidx.camera:camera-view:1.4.2")
+    implementation("androidx.camera:camera-core:1.4.2")
+
+    //Testing
+        //ViewModel
+        testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+        testImplementation("junit:junit:4.13.2")
+        testImplementation("io.mockk:mockk:1.13.10")
+        testImplementation("androidx.arch.core:core-testing:2.2.0")
+        //UI
+        androidTestImplementation("androidx.test.ext:junit:1.1.5")
+        androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+        androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.8.2")
+        debugImplementation("androidx.compose.ui:ui-test-manifest:1.8.2")
+
+    //daten speichern(tag/nacht modus)
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 
 
     implementation(libs.androidx.core.ktx)
