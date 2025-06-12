@@ -42,19 +42,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //Kamera erlaubnis anfordern
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.CAMERA), 0)
         }
 
+        //Intialisierung
         val db = AppDatabase.getDatabase(applicationContext)
         val repository = UserRepository(db)
 
+        //User auffüllen wenn das erste mal gestartet
         lifecycleScope.launch {
             if (!repository.hasUsers()) {
                 repository.refreshUsers()
             }
         }
 
+        //Theme setzen
         setContent {
             val themeViewModel: ThemeViewModel = viewModel()
             val isDark by themeViewModel.isDark.collectAsState()
@@ -69,6 +73,7 @@ class MainActivity : ComponentActivity() {
 @androidx.camera.core.ExperimentalGetImage
 @Composable
 fun AppNavigation(themeViewModel: ThemeViewModel) {
+    //Nav Controller intialisieren
     val navController = rememberNavController()
 
     Scaffold(
@@ -79,6 +84,7 @@ fun AppNavigation(themeViewModel: ThemeViewModel) {
             startDestination = "overview",
             modifier = Modifier.padding(innerPadding)
         ) {
+            //Alle Screens hinzufügen
             composable("overview") { UserOverviewScreen(navController) }
             composable("camera") { CameraScreen(navController) }
             composable("settings") { SettingsScreen(themeViewModel) }
@@ -88,6 +94,7 @@ fun AppNavigation(themeViewModel: ThemeViewModel) {
                     UserDetailScreen(userId, navController)
                 }
             }
+            //Edit Screen 2 mal je nachdem ob user erstellt oder geändert wird
             composable("create") {
                 UserEditScreen(null, navController)
             }
@@ -101,15 +108,17 @@ fun AppNavigation(themeViewModel: ThemeViewModel) {
     }
 }
 
+//Erstellen der Nav Bar
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     NavigationBar {
         val items = listOf(
+            //items der navbar festlegen
             NavItem("Overview", "overview", Icons.Default.Home),
             NavItem("Camera", "camera", Icons.Default.Add),
             NavItem("Settings", "settings", Icons.Default.Settings),
         )
-
+        //Erstellen der Items
         items.forEach { item ->
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.title) },
@@ -121,5 +130,6 @@ fun BottomNavigationBar(navController: NavHostController) {
     }
 }
 
+//klasse der NavItems anzeige name, scene die geladen werden soll und Bild
 data class NavItem(val title: String, val route: String, val icon: ImageVector)
 

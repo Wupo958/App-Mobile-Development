@@ -5,6 +5,7 @@ import retrofit2.http.GET
 
 data class RandomUserResponse(val results: List<UserDto>)
 
+//Strukturiert Daten
 data class UserDto(
     val name: Name,
     val dob: Dob,
@@ -16,6 +17,7 @@ data class Name(val first: String, val last: String)
 data class Dob(val date: String)
 data class Picture(val large: String)
 
+//holt 10 User von API
 interface UserApi {
     @GET("api/?results=10")
     suspend fun getUsers(): Response<RandomUserResponse>

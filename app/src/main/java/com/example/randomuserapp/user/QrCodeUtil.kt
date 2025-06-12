@@ -7,6 +7,7 @@ import com.google.zxing.common.BitMatrix
 import androidx.core.graphics.set
 import androidx.core.graphics.createBitmap
 
+// Bitmap (Bild) des QR-Codes erstellen aus einem string
 fun generateQrCodeBitmap(content: String, size: Int = 512): Bitmap {
     val bitMatrix: BitMatrix = MultiFormatWriter().encode(
         content,

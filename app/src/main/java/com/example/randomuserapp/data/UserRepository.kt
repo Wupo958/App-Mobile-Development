@@ -6,14 +6,17 @@ import com.example.randomuserapp.user.formatDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+// Schnittstelle zwischen AppDatabase und UserAPI
 class UserRepository(private val db: AppDatabase) {
     val users: LiveData<List<User>> = db.userDao().getAll()
 
+    //Leert die Datenbank und fügt dann neue User hinzu
     suspend fun refreshUsers() = withContext(Dispatchers.IO) {
         db.userDao().deleteAll()
         addUsers()
     }
 
+    //Neue User zur Datenbank hinzufügen
     suspend fun addUsers() = withContext(Dispatchers.IO){
         val response = ApiClient.api.getUsers()
         if (response.isSuccessful) {
@@ -38,14 +41,17 @@ class UserRepository(private val db: AppDatabase) {
         db.userDao().deleteAll()
     }
 
+    //gibt true zurück wenn die Datenbank mehr als 0 user hat
     suspend fun hasUsers(): Boolean {
         return db.userDao().countUsers() > 0
     }
 
+    //neuen user einfügen
     suspend fun insert(user: User) = withContext(Dispatchers.IO) {
         db.userDao().insert(user)
     }
 
+    //neuen user einfügen außer er existiert bereits
     suspend fun insertIfNotExists(user: User): User? = withContext(Dispatchers.IO) {
         val existing = db.userDao().getByIdentity(user.firstName, user.lastName, user.dob)
         if (existing == null) {

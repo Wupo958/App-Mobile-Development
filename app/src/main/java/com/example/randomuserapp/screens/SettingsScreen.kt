@@ -19,86 +19,77 @@ import androidx.compose.ui.platform.LocalConfiguration
 
 @Composable
 fun SettingsScreen(themeViewModel: ThemeViewModel) {
+    //Intialisierung
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
     val repository = remember { UserRepository(db) }
     val viewModel: UserViewModel = viewModel(factory = UserViewModelFactory(repository))
 
-    val isDark by themeViewModel.isDark.collectAsState()
-
+    //holt orientation
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
 
+    //Lädt Switches und Buttons im Horizontalen Modus
     if (isLandscape) {
         Row(modifier = Modifier.padding(16.dp)) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Settings", style = MaterialTheme.typography.headlineSmall)
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Dark Mode")
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Switch(
-                        checked = isDark,
-                        onCheckedChange = { themeViewModel.setTheme(it) }
-                    )
-                }
+                CreateSwitch(themeViewModel)
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Spacer(modifier = Modifier.height(48.dp))
-                Button(onClick = { viewModel.addUsers() }) {
-                    Text("Add 10 More Users")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(onClick = { viewModel.refreshUsers() }) {
-                    Text("Refill Database with 10 Users")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(onClick = { viewModel.clearUsers() }) {
-                    Text("Clear Database")
-                }
+                CreateButtons(viewModel)
             }
         }
-    } else {
+    }
+    //Lädt Swicthes und Buttons im Vertikalen Modus
+    else {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Settings", style = MaterialTheme.typography.headlineSmall)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Dark Mode")
-                Spacer(modifier = Modifier.width(16.dp))
-                Switch(
-                    checked = isDark,
-                    onCheckedChange = { themeViewModel.setTheme(it) }
-                )
-            }
+            CreateSwitch(themeViewModel)
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(onClick = { viewModel.addUsers()}) {
-                Text("Add 10 Users")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(onClick = { viewModel.refreshUsers() }) {
-                Text("Refill Database(10 Users)")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(onClick = { viewModel.clearUsers() }) {
-                Text("Clear Database")
-            }
+            CreateButtons(viewModel)
         }
+    }
+}
+
+//Erstellt die Knöpfe
+@Composable
+fun CreateButtons(viewModel: UserViewModel) {
+    Button(onClick = { viewModel.addUsers()}) {
+        Text("Add 10 Users")
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Button(onClick = { viewModel.refreshUsers() }) {
+        Text("Refill Database(10 Users)")
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Button(onClick = { viewModel.clearUsers() }) {
+        Text("Clear Database")
+    }
+}
+
+//Erstellt den Theme switch
+@Composable
+fun CreateSwitch(themeViewModel: ThemeViewModel) {
+    val isDark by themeViewModel.isDark.collectAsState()
+    Text("Settings", style = MaterialTheme.typography.headlineSmall)
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Dark Mode")
+        Spacer(modifier = Modifier.width(16.dp))
+        Switch(
+            checked = isDark,
+            onCheckedChange = { themeViewModel.setTheme(it) }
+        )
     }
 }

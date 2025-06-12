@@ -6,19 +6,19 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.randomuserapp.user.SortOption
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 val Context.dataStore by preferencesDataStore(name = "settings")
 
+//Sortieroptionen
 enum class SortOption(val displayName: String) {
     FIRST_NAME("First Name"),
     LAST_NAME("Last Name"),
     DOB("Birthday")
 }
 
-
+//Speichert/holt Sortieroption
 object SortPreferences {
     private val SORT_KEY = stringPreferencesKey("sort_option")
 
@@ -34,6 +34,7 @@ object SortPreferences {
     }
 }
 
+//Entfernt Uhrzeit vom Geburtstag
 fun formatDate(isoDate: String): String {
     return try {
         val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
