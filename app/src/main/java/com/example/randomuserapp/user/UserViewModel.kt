@@ -19,10 +19,6 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
     private val _sortOption = MutableStateFlow(SortOption.FIRST_NAME)
     val sortOption: StateFlow<SortOption> = _sortOption
 
-    fun setSortOption(option: SortOption) {
-        _sortOption.value = option
-    }
-
     fun refreshUsers() {
         viewModelScope.launch {
             repository.refreshUsers()

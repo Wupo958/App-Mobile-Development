@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,16 +38,17 @@ import org.json.JSONObject
 
 @Composable
 fun UserDetailScreen(userId: Int, navController: NavController) {
+    //Intialisierung
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
     val repository = remember { UserRepository(db) }
     var user by remember { mutableStateOf<User?>(null) }
 
+    //holt orientation
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    var isQrFullscreen by remember { mutableStateOf(false) }
-
+    //holt den angeklickten User
     LaunchedEffect(userId) {
         user = repository.getUserById(userId)
     }
@@ -56,12 +56,14 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
     user?.let {
         Column(modifier = Modifier.padding(16.dp)) {
             Row{
+                //Return Knopf
                 Button(onClick = { navController.navigate("overview") }) {
                     Text("Return")
                 }
 
                 Spacer(Modifier.width(32.dp))
 
+                //Edit Knopf
                 Button(
                     onClick = { navController.navigate("edit/${user!!.id}") },
                     modifier = Modifier
@@ -70,82 +72,32 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
                 }
             }
 
-
             Spacer(Modifier.height(32.dp))
 
+            //Lädt Bilder und Text im Horizontalen Modus
             if (isLandscape) {
                 Row(modifier = Modifier.fillMaxWidth()) {
 
-                    AsyncImage(
-                        model = it.photoUrl,
-                        contentDescription = "User photo",
-                        modifier = Modifier
-                            .size(128.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                    )
-
-                    Spacer(Modifier.width(32.dp))
-
-                    Image(
-                        bitmap = createQRCode(it).asImageBitmap(),
-                        contentDescription = "QR Code",
-
-                        modifier = if (isQrFullscreen)
-                            Modifier
-                                .size(256.dp)
-                                .clickable { isQrFullscreen = !isQrFullscreen }
-                        else
-                            Modifier.size(128.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable { isQrFullscreen = !isQrFullscreen }
-                    )
-
+                    LoadImages(it)
 
                     Spacer(Modifier.width(32.dp))
 
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("${it.firstName} ${it.lastName}", style = MaterialTheme.typography.titleLarge)
-                        Spacer(Modifier.height(16.dp))
-                        Text("Date of birth: " + formatDate(it.dob))
-                        Spacer(Modifier.height(16.dp))
-                        Text("Phone: ${it.phone}")
+                        LoadTextDetailScreen(it)
                     }
                 }
-            } else {
+            }
+            //Lädt Bilder und Text im Vertikalen Modus
+            else {
                 Column {
 
                     Row {
-                        AsyncImage(
-                            model = it.photoUrl,
-                            contentDescription = "User photo",
-                            modifier = Modifier
-                                .size(128.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                        )
-
-                        Spacer(Modifier.width(32.dp))
-
-                        Image(
-                            bitmap = createQRCode(it).asImageBitmap(),
-                            contentDescription = "QR Code",
-
-                            modifier = if (isQrFullscreen)
-                                Modifier
-                                    .size(256.dp)
-                                    .clickable { isQrFullscreen = !isQrFullscreen }
-                            else
-                                Modifier.size(128.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .clickable { isQrFullscreen = !isQrFullscreen }
-                        )
+                        LoadImages(it)
                     }
 
                     Spacer(Modifier.height(32.dp))
-                    Text("${it.firstName} ${it.lastName}", style = MaterialTheme.typography.titleLarge)
-                    Spacer(Modifier.height(16.dp))
-                    Text("Date of birth: " + formatDate(it.dob))
-                    Spacer(Modifier.height(16.dp))
-                    Text("Phone: ${it.phone}")
+
+                    LoadTextDetailScreen(it)
                 }
             }
         }
@@ -154,6 +106,7 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
 
 @Composable
 fun createQRCode(user: User): Bitmap {
+    //base url entfernen für weniger komplexen QR Code
     val baseUrl = "https://randomuser.me/api/portraits/"
     val shortPhotoPath = user.photoUrl.removePrefix(baseUrl)
 
@@ -166,10 +119,50 @@ fun createQRCode(user: User): Bitmap {
         //Log.d("user.photoUrl", user.sho)
     }.toString()
 
+    //Create qr Code bitmap from string using QrCodeUtil.kt function
     val qrBitmap = remember(qrContent) {
         generateQrCodeBitmap(qrContent)
     }
 
     return qrBitmap
+}
+
+//Lädt QR Code und Profil Bild
+@Composable
+fun LoadImages(user: User) {
+    var isQrFullscreen by remember { mutableStateOf(false) }
+    AsyncImage(
+        model = user.photoUrl,
+        contentDescription = "User photo",
+        modifier = Modifier
+            .size(128.dp)
+            .clip(RoundedCornerShape(10.dp))
+    )
+
+    Spacer(Modifier.width(32.dp))
+
+    Image(
+        bitmap = createQRCode(user).asImageBitmap(),
+        contentDescription = "QR Code",
+
+        modifier = if (isQrFullscreen)
+            Modifier
+                .size(256.dp)
+                .clickable { isQrFullscreen = !isQrFullscreen }
+        else
+            Modifier.size(128.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .clickable { isQrFullscreen = !isQrFullscreen }
+    )
+}
+
+//Lädt Namen, Geburtstag und telefonnummer
+@Composable
+fun LoadTextDetailScreen(user: User) {
+    Text("${user.firstName} ${user.lastName}", style = MaterialTheme.typography.titleLarge)
+    Spacer(Modifier.height(16.dp))
+    Text("Date of birth: " + formatDate(user.dob))
+    Spacer(Modifier.height(16.dp))
+    Text("Phone: ${user.phone}")
 }
 
