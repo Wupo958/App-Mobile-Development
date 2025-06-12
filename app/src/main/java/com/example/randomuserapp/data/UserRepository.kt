@@ -2,6 +2,7 @@ package com.example.randomuserapp.data
 
 import androidx.lifecycle.LiveData
 import com.example.randomuserapp.user.User
+import com.example.randomuserapp.user.formatDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -20,7 +21,7 @@ class UserRepository(private val db: AppDatabase) {
                 val user = User(
                     firstName = it.name.first,
                     lastName = it.name.last,
-                    dob = it.dob.date,
+                    dob = formatDate(it.dob.date),
                     phone = it.phone,
                     photoUrl = it.picture.large
                 )

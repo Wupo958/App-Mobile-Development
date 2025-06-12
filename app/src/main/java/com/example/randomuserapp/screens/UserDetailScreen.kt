@@ -1,10 +1,13 @@
 package com.example.randomuserapp.screens
 
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -44,6 +47,8 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
 
+    var isQrFullscreen by remember { mutableStateOf(false) }
+
     LaunchedEffect(userId) {
         user = repository.getUserById(userId)
     }
@@ -81,20 +86,8 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
 
                     Spacer(Modifier.width(32.dp))
 
-                    val qrContent = JSONObject().apply {
-                        put("firstName", it.firstName)
-                        put("lastName", it.lastName)
-                        put("dob", it.dob)
-                        put("phone", it.phone)
-                        put("photoUrl", it.photoUrl)
-                    }.toString()
-
-                    val qrBitmap = remember(qrContent) {
-                        generateQrCodeBitmap(qrContent)
-                    }
-
                     Image(
-                        bitmap = qrBitmap.asImageBitmap(),
+                        bitmap = createQRCode(it).asImageBitmap(),
                         contentDescription = "QR Code",
                         modifier = Modifier
                             .size(128.dp)
@@ -107,7 +100,7 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text("${it.firstName} ${it.lastName}", style = MaterialTheme.typography.titleLarge)
                         Spacer(Modifier.height(16.dp))
-                        Text("Date of birth: " + formatDate(it.dob))
+                        Text("Date of birth: " + it.dob)
                         Spacer(Modifier.height(16.dp))
                         Text("Phone: ${it.phone}")
                     }
@@ -126,36 +119,51 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
 
                         Spacer(Modifier.width(32.dp))
 
-                        val qrContent = JSONObject().apply {
-                            put("firstName", it.firstName)
-                            put("lastName", it.lastName)
-                            put("dob", it.dob)
-                            put("phone", it.phone)
-                            put("photoUrl", it.photoUrl)
-                        }.toString()
-
-                        val qrBitmap = remember(qrContent) {
-                            generateQrCodeBitmap(qrContent)
-                        }
-
                         Image(
-                            bitmap = qrBitmap.asImageBitmap(),
+                            bitmap = createQRCode(it).asImageBitmap(),
                             contentDescription = "QR Code",
-                            modifier = Modifier
-                                .size(128.dp)
-                                .clip(RoundedCornerShape(10.dp))
+
+                            modifier = if (isQrFullscreen)
+                                Modifier
+                                    .size(256.dp)
+                                    .clickable { isQrFullscreen = !isQrFullscreen }
+                            else
+                                Modifier.size(128.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .clickable { isQrFullscreen = !isQrFullscreen }
                         )
                     }
 
                     Spacer(Modifier.height(32.dp))
                     Text("${it.firstName} ${it.lastName}", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(16.dp))
-                    Text("Date of birth: " + formatDate(it.dob))
+                    Text("Date of birth: " + it.dob)
                     Spacer(Modifier.height(16.dp))
                     Text("Phone: ${it.phone}")
                 }
             }
         }
     } ?: Text("Loading...")
+}
+
+@Composable
+fun createQRCode(user: User): Bitmap {
+    val baseUrl = "https://randomuser.me/api/portraits/"
+    val shortPhotoPath = user.photoUrl.removePrefix(baseUrl)
+
+    val qrContent = JSONObject().apply {
+        put("firstName", user.firstName)
+        put("lastName", user.lastName)
+        put("dob", user.dob)
+        put("phone", user.phone)
+        put("photoUrl", shortPhotoPath)
+        //Log.d("user.photoUrl", user.sho)
+    }.toString()
+
+    val qrBitmap = remember(qrContent) {
+        generateQrCodeBitmap(qrContent)
+    }
+
+    return qrBitmap
 }
 
