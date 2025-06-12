@@ -89,9 +89,15 @@ fun UserDetailScreen(userId: Int, navController: NavController) {
                     Image(
                         bitmap = createQRCode(it).asImageBitmap(),
                         contentDescription = "QR Code",
-                        modifier = Modifier
-                            .size(128.dp)
-                            .clip(RoundedCornerShape(10.dp))
+
+                        modifier = if (isQrFullscreen)
+                            Modifier
+                                .size(256.dp)
+                                .clickable { isQrFullscreen = !isQrFullscreen }
+                        else
+                            Modifier.size(128.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable { isQrFullscreen = !isQrFullscreen }
                     )
 
 

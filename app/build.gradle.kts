@@ -47,7 +47,6 @@ dependencies {
 
     //Room
     implementation("androidx.room:room-runtime:2.7.1")
-    //implementation(libs.androidx.ui.test.junit4.android)
     kapt("androidx.room:room-compiler:2.7.1")
     implementation("androidx.room:room-ktx:2.7.1")
 
@@ -65,11 +64,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics:1.8.2")
 
     // QR Code scannen
-    implementation("com.google.mlkit:barcode-scanning:17.2.0")
-    implementation("androidx.camera:camera-camera2:1.3.0")
-    implementation("androidx.camera:camera-lifecycle:1.3.0")
-    implementation("androidx.camera:camera-view:1.3.0")
-    implementation("androidx.camera:camera-core:1.3.0")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("androidx.camera:camera-camera2:1.4.2")
+    implementation("androidx.camera:camera-lifecycle:1.4.2")
+    implementation("androidx.camera:camera-view:1.4.2")
+    implementation("androidx.camera:camera-core:1.4.2")
 
     //Testing
         //ViewModel
@@ -83,7 +82,8 @@ dependencies {
         androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.8.2")
         debugImplementation("androidx.compose.ui:ui-test-manifest:1.8.2")
 
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    //daten speichern(tag/nacht modus)
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 
 
     implementation(libs.androidx.core.ktx)
